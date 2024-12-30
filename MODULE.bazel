@@ -6,11 +6,10 @@ module(
 bazel_dep(
     name = "abseil-cpp",
     version = "20240722.0.bcr.2",
-    repo_name = "com_google_absl",
 )
 
 bazel_dep(
-    name = "bazel_skylib", 
+    name = "bazel_skylib",
     version = "1.7.1",
 )
 

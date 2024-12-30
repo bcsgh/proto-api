@@ -22,8 +22,8 @@ cc_binary(
     name = "gen_metadata_tool",
     srcs = ["gen_metadata_tool.cc"],
     deps = [
-        "@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/flags:parse",
+        "@abseil-cpp//absl/flags:flag",
+        "@abseil-cpp//absl/flags:parse",
         ":api_meta_cc",
         ":descriptor_proto_cc",
     ],
