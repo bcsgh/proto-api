@@ -39,6 +39,7 @@
 #include "proto_api/api_meta.pb.h"
 
 ABSL_FLAG(std::string, src, "", "");
+ABSL_FLAG(std::string, type, "", "The type of module to generate (goog, es6).");
 ABSL_FLAG(std::string, js, "", "");
 ABSL_FLAG(std::string, js_module, "",
           "Override the goog.module to use in the JS file. "
@@ -126,7 +127,7 @@ void CC(const FileDescriptorProto* root, const std::string& path) {
   if (out) CC(root, path, out);
 }
 
-constexpr auto kJS = R"JS(/**
+constexpr auto kJS_goog = R"JS(/**
  * @fileoverview Map a proto enum with custom options into JS
  * @public
  */
@@ -139,6 +140,23 @@ goog.module('<module>');
 <bits>
 
 exports = {
+  <exports>
+};
+
+// DONE
+)JS";
+
+constexpr auto kJS_es6 = R"JS(/**
+ * @fileoverview Map a proto enum with custom options into JS
+ * @public
+ */
+/* eslint-disable */
+
+// GENERATED CODE -- DO NOT EDIT!
+
+<bits>
+
+export {
   <exports>
 };
 
@@ -174,7 +192,14 @@ void JS(const FileDescriptorProto* root, std::ostream& out) {
     }));
   }
 
-  out << absl::StrReplaceAll(kJS, {
+  const std::map<std::string, std::string_view> kJSTpls{
+    {"es6", kJS_es6},
+    {"goog", kJS_goog},
+  };
+
+  auto js_tpl = kJSTpls.at(absl::GetFlag(FLAGS_type));
+
+  out << absl::StrReplaceAll(js_tpl, {
       {"<module>", module},
       {"<bits>", absl::StrJoin(lines, "\n\n")},
       {"<exports>", absl::StrJoin(all, ",\n  ")},

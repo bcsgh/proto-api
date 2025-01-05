@@ -41,6 +41,7 @@ bazel_dep(
 def _gen_proto_api_impl(ctx):
     args = ctx.actions.args()
     args.add("--src=%s" % ctx.attr.proto[ProtoInfo].direct_descriptor_set.path)
+    args.add("--type=%s" % ctx.attr.type)
 
     out = []
     if ctx.outputs.js:
@@ -81,6 +82,11 @@ gen_proto_api = rule(
             allow_single_file=True,
             mandatory=True,
             providers=[ProtoInfo]
+        ),
+        "type": attr.string(
+            doc="The type of output to use",
+            default="goog",
+            values=["goog", "es6"],
         ),
         "js": attr.output(
             doc="The generated JavaScript file.",
