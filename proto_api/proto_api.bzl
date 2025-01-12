@@ -25,6 +25,19 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+"""
+# Bazel rules for extracting metadata about HTTP APIs from `proto_library` rules.
+
+## `MODULE.bazel`
+
+```
+bazel_dep(
+    name = "com_github_bcsgh_proto_api",
+    version = ...,
+)
+```
+"""
+
 def _gen_proto_api_impl(ctx):
     args = ctx.actions.args()
     args.add("--src=%s" % ctx.attr.proto[ProtoInfo].direct_descriptor_set.path)

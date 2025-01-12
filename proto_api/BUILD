@@ -1,3 +1,5 @@
+exports_files(["proto_api.bzl"])
+
 proto_library(
     name = "api_meta_proto",
     srcs = ["api_meta.proto"],
