@@ -36,10 +36,8 @@ def proto_api_suite(name):
     )
 
     gen_proto_api(
-        name = "gen_metadata",
+        name = "gen_metadata_h",
         proto = ":api",
-        type = "goog",
-        js = "gen_metadata.goog.js",
         h = "gen_metadata.h",
         include_guard = "OVERRIDE_H_",
     )
@@ -47,8 +45,22 @@ def proto_api_suite(name):
     gen_proto_api(
         name = "gen_metadata_goog",
         proto = ":api",
+        type = "goog",
+        js = "gen_metadata.goog.js",
+    )
+
+    gen_proto_api(
+        name = "gen_metadata_es6",
+        proto = ":api",
         type = "es6",
         js = "gen_metadata.es6.js",
+    )
+
+    gen_proto_api(
+        name = "gen_metadata_ts",
+        proto = ":api",
+        type = "ts",
+        js = "gen_metadata.ts",
     )
 
     diff_test(
@@ -61,6 +73,12 @@ def proto_api_suite(name):
         name = "js_goog_test",
         file1 = "gen_metadata.goog.js",
         file2 = "gen_metadata.goog.gold.js",
+    )
+
+    diff_test(
+        name = "ts_test",
+        file1 = "gen_metadata.ts",
+        file2 = "gen_metadata.gold.ts",
     )
 
     diff_test(

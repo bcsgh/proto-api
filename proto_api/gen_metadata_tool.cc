@@ -163,9 +163,31 @@ export {
 // DONE
 )JS";
 
-constexpr auto kObj = R"JS(const <name> = {
+constexpr auto kJS_ts = R"JS(/**
+ * @fileoverview Map a proto enum with custom options into TypeScript
+ */
+/* eslint-disable */
+
+// GENERATED CODE -- DO NOT EDIT!
+
+<bits>
+
+// DONE
+)JS";
+
+constexpr auto kJsObj = R"JS(const <name> = {
   <bits>
 };)JS";
+
+constexpr auto kTsObj = R"JS(export enum <name> {
+  <bits>
+};)JS";
+
+struct Tpls {
+  std::string_view obj;
+  std::string_view line;
+  std::string_view file;
+};
 
 void JS(const FileDescriptorProto* root, std::ostream& out) {
   std::string module;
@@ -176,30 +198,35 @@ void JS(const FileDescriptorProto* root, std::ostream& out) {
     module = absl::GetFlag(FLAGS_js_module);
   }
 
+  ///////////////////
+  const std::map<std::string, Tpls> kTpls{
+    {"es6",  {kJsObj, "<key>: '<value>',",  kJS_es6}},
+    {"goog", {kJsObj, "<key>: '<value>',",  kJS_goog}},
+    {"ts",   {kTsObj, "<key> = '<value>',", kJS_ts}},
+  };
+  auto tpl = kTpls.at(absl::GetFlag(FLAGS_type));
+
   std::vector<std::string> lines, all;
   for (const auto &desc : root->enum_type()) {
     std::vector<std::string> bits;
     for (const auto &val : desc.value()) {
       auto url = val.options().GetExtension(api::target_url);
       if (url.empty()) continue;
-      bits.emplace_back(absl::StrCat(val.name(), ": '", url, "',"));
+      bits.emplace_back(absl::StrReplaceAll(tpl.line, {
+        {"<key>", val.name()},
+        {"<value>", url},
+      }));
     }
     if (bits.size() == 0) continue;
     all.emplace_back(desc.name());
-    lines.emplace_back(absl::StrReplaceAll(kObj, {
+    lines.emplace_back(absl::StrReplaceAll(tpl.obj, {
         {"<name>", desc.name()},
         {"<bits>", absl::StrJoin(bits, "\n  ")},
     }));
   }
 
-  const std::map<std::string, std::string_view> kJSTpls{
-    {"es6", kJS_es6},
-    {"goog", kJS_goog},
-  };
 
-  auto js_tpl = kJSTpls.at(absl::GetFlag(FLAGS_type));
-
-  out << absl::StrReplaceAll(js_tpl, {
+  out << absl::StrReplaceAll(tpl.file, {
       {"<module>", module},
       {"<bits>", absl::StrJoin(lines, "\n\n")},
       {"<exports>", absl::StrJoin(all, ",\n  ")},

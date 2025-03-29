@@ -86,7 +86,7 @@ gen_proto_api = rule(
         "type": attr.string(
             doc="The type of output to use",
             default="goog",
-            values=["goog", "es6"],
+            values=["goog", "es6", "ts"],
         ),
         "js": attr.output(
             doc="The generated JavaScript file.",
